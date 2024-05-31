@@ -1,6 +1,6 @@
-import { AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import React, { useCallback, useState } from "react";
+// import { AntDesign } from "@expo/vector-icons";
+import {useNavigation} from '@react-navigation/native';
+import React, {useCallback, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -9,64 +9,62 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native";
-import { human, material, systemWeights } from "react-native-typography";
-import { useDispatch, useSelector } from "react-redux";
-import { handleFetchBookById } from "../redux/sclies";
-import Loader from "./Loader";
-const BookFlatList = ({ data }) => {
+} from 'react-native';
+import {human, material, systemWeights} from 'react-native-typography';
+import {useDispatch, useSelector} from 'react-redux';
+import {handleFetchBookById} from '../redux/sclies';
+import Loader from './Loader';
+const BookFlatList = ({data}) => {
   const dispatch = useDispatch();
 
   // const { loading } = useSelector((state) => state.bookStore);
   const [loading, setLoading] = useState(false);
-  console.log("loadingl", loading);
   const navigation = useNavigation();
 
-  const ViewBook = useCallback((bookUrl) => {
+  const ViewBook = useCallback(bookUrl => {
     setLoading(true);
     dispatch(handleFetchBookById(bookUrl)).then(() => {
       setLoading(false);
-      navigation.navigate("viewBook");
+      navigation.navigate('viewBook');
     });
   }, []);
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({item}) => {
     const subTitle = item?.volumeInfo?.subtitle
       ? `${item.volumeInfo.subtitle}`
-      : "no sunbtitle";
+      : 'no sunbtitle';
 
     const thumbnail = item?.volumeInfo?.imageLinks?.thumbnail
-      ? item?.volumeInfo?.imageLinks?.thumbnail?.split(":")[0] +
-        "s:" +
-        item?.volumeInfo?.imageLinks?.thumbnail?.split(":")[1]
-      : "https://www.pngkey.com/png/detail/123-1232158_blank-book-clip-art-at-clker-small-book.png";
+      ? item?.volumeInfo?.imageLinks?.thumbnail?.split(':')[0] +
+        's:' +
+        item?.volumeInfo?.imageLinks?.thumbnail?.split(':')[1]
+      : 'https://www.pngkey.com/png/detail/123-1232158_blank-book-clip-art-at-clker-small-book.png';
 
-    const title = item.volumeInfo.title ? item.volumeInfo.title : "item.title";
+    const title = item.volumeInfo.title ? item.volumeInfo.title : 'item.title';
 
     const publishedDate = item.volumeInfo.publishedDate;
 
     const rating =
       item?.volumeInfo?.averageRating % 1 === 0
-        ? item?.volumeInfo?.averageRating + ".0"
+        ? item?.volumeInfo?.averageRating + '.0'
         : item?.volumeInfo?.averageRating;
 
     return (
       <Pressable onPress={() => ViewBook(item?.selfLink)}>
         <View style={styles.item}>
-          <View style={{ flex: 1, justifyContent: "center", display: "flex" }}>
+          <View style={{flex: 1, justifyContent: 'center', display: 'flex'}}>
             <View
               style={{
                 padding: 15,
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-around",
-              }}
-            >
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+              }}>
               <View
                 style={{
-                  backgroundColor: "white",
+                  backgroundColor: 'white',
                   flex: 1.2,
-                  shadowColor: "#000",
+                  shadowColor: '#000',
                   shadowOffset: {
                     width: 0,
                     height: 2,
@@ -74,8 +72,7 @@ const BookFlatList = ({ data }) => {
                   shadowOpacity: 0.25,
                   shadowRadius: 4,
                   elevation: 5,
-                }}
-              >
+                }}>
                 {thumbnail && (
                   <Image
                     source={{
@@ -87,33 +84,31 @@ const BookFlatList = ({ data }) => {
               </View>
               <View
                 style={{
-                  backgroundColor: "white",
+                  backgroundColor: 'white',
                   flex: 3,
                   marginLeft: 15,
-                  justifyContent: "center",
-                }}
-              >
-                <Text style={{ fontWeight: "bold", color: "#4D506C" }}>
+                  justifyContent: 'center',
+                }}>
+                <Text style={{fontWeight: 'bold', color: '#4D506C'}}>
                   {title}
                 </Text>
-                <Text style={{ color: "#4D506C", marginVertical: 5 }}>
+                <Text style={{color: '#4D506C', marginVertical: 5}}>
                   {subTitle.length > 30
-                    ? subTitle.slice(0, 30) + "..."
+                    ? subTitle.slice(0, 30) + '...'
                     : subTitle}
                 </Text>
-                <Text style={{ color: "#DE7773", marginTop: 5 }}>
-                  {rating ? rating + " | " + publishedDate : publishedDate}
+                <Text style={{color: '#DE7773', marginTop: 5}}>
+                  {rating ? rating + ' | ' + publishedDate : publishedDate}
                 </Text>
               </View>
               <View
                 style={{
-                  backgroundColor: "white",
+                  backgroundColor: 'white',
                   flex: 0.5,
                   marginLeft: 15,
-                  justifyContent: "center",
-                }}
-              >
-                <AntDesign name="right" size={30} color="#b5aeae" />
+                  justifyContent: 'center',
+                }}>
+                {/* <AntDesign name="right" size={30} color="#b5aeae" /> */}
               </View>
             </View>
           </View>
@@ -125,9 +120,9 @@ const BookFlatList = ({ data }) => {
   return (
     <View>
       <FlatList
-        data={[data]}
-        renderItem={(item) => renderItem(item)}
-        keyExtractor={(item) => item.id}
+        data={data}
+        renderItem={item => renderItem(item)}
+        keyExtractor={item => item.id}
       />
     </View>
   );
@@ -143,7 +138,7 @@ const styles = StyleSheet.create({
     height: 110,
   },
   item: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     marginVertical: 8,
     borderRadius: 10,
   },
@@ -155,7 +150,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
     ...material.body1,
     ...systemWeights.semibold,
-    color: "black",
+    color: 'black',
   },
   cardDate: {
     marginTop: 3,

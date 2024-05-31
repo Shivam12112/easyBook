@@ -8,7 +8,6 @@ import {
 } from "react-native";
 
 const Loader = ({ loading }) => {
-  console.log(loading);
   return (
     <View style={styles.centeredView}>
       {loading && (
