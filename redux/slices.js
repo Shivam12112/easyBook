@@ -1,5 +1,5 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchBookById, fetchBookByName, handleBookSearch } from "./booksApi";
+import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { fetchBookById, fetchBookByName } from "./booksApi";
 import { handleLoginWithEmailAndPassword } from "./authApi";
 import { PURGE } from "redux-persist";
 
@@ -8,7 +8,9 @@ const initialState = {
   singleBook: {},
   loading: false,
   loggedInUser: {},
+  headerShown: false,
 };
+
 export const loginWithEmailAndPassword = createAsyncThunk(
   "loginWithEmailAndPassword",
   async (loginDetails) => {
@@ -16,6 +18,7 @@ export const loginWithEmailAndPassword = createAsyncThunk(
     return result;
   }
 );
+
 export const handleFetchBookByName = createAsyncThunk(
   "books/handleFetchBookByName",
   async (bookName) => {
@@ -23,6 +26,7 @@ export const handleFetchBookByName = createAsyncThunk(
     return response;
   }
 );
+
 export const handleFetchBookById = createAsyncThunk(
   "books/handleFetchBookById",
   async (bookId) => {
@@ -30,9 +34,16 @@ export const handleFetchBookById = createAsyncThunk(
     return response;
   }
 );
-// export const clearReducer = createAsyncThunk("books/clearReducer", async () => {
-//   return true;
-// });
+
+// Define action creator using createAction
+export const handleHeaderShown = createAction(
+  "books/handleHeaderShown",
+  (shown) => {
+    return {
+      payload: shown,
+    };
+  }
+);
 
 export const bookSlice = createSlice({
   name: "books",
@@ -66,10 +77,13 @@ export const bookSlice = createSlice({
       .addCase(loginWithEmailAndPassword.fulfilled, (state, action) => {
         state.loading = false;
         state.loggedInUser = action.payload;
-        console.log("action====>", action.payload);
       })
       .addCase(loginWithEmailAndPassword.rejected, (state) => {
         state.loading = false;
+      })
+      // Corrected usage of handleHeaderShown action creator
+      .addCase(handleHeaderShown, (state, action) => {
+        state.headerShown = action.payload;
       })
       .addCase(PURGE, () => {
         return initialState;
@@ -77,4 +91,5 @@ export const bookSlice = createSlice({
   },
 });
 
+// export const actions = { ...bookSlice.actions, handleHeaderShown };
 export default bookSlice.reducer;

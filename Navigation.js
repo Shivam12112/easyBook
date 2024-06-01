@@ -9,18 +9,21 @@ import HomeScreen from "./Components/HomeScreen";
 import LoginScreen from "./Components/LoginScreen";
 import SignupScreen from "./Components/SignupScreen";
 import ViewBook from "./Components/ViewBook";
+import TabView from "./Components/TabView";
+import TabViewScreen from "./Components/TabView";
+import Profile from "./Components/Profile";
 
 const Stack = createStackNavigator();
 
 function Navigation() {
-  const { loggedInUser } = useSelector((state) => state);
-  console.log(loggedInUser);
+  const { loggedInUser, headerShown } = useSelector((state) => state);
+  // console.log(loggedInUser);
 
   return (
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName={
-          Object.keys(loggedInUser).length ? "HomeScreen" : "LoginScreen"
+          Object.keys(loggedInUser).length ? "TabViewScreen" : "LoginScreen"
         }
         screenOptions={{
           headerShown: false,
@@ -40,6 +43,33 @@ function Navigation() {
           options={{ title: "", header: () => null, gestureEnabled: false }}
         />
         <Stack.Screen
+          name="TabViewScreen"
+          component={TabViewScreen}
+          options={{
+            title: "",
+            headerShown: true,
+            headerStyle: { backgroundColor: "#DE7773" },
+            headerTintColor: "#fff",
+            gestureEnabled: true,
+            ...TransitionPresets.ModalSlideFromBottomIOS, // Custom transition for this screen
+          }}
+        />
+        <Stack.Screen
+          name="Profile"
+          component={Profile}
+          options={{
+            title: "Profile",
+            headerShown: true,
+            headerShadowVisible: true,
+            headerBackTitleVisible: false,
+            headerStyle: { backgroundColor: "#DE7773" },
+            headerTitleAlign: "center",
+            headerTintColor: "#fff",
+            gestureEnabled: true,
+            ...TransitionPresets.ModalSlideFromBottomIOS, // Custom transition for this screen
+          }}
+        />
+        <Stack.Screen
           name="HomeScreen"
           component={HomeScreen}
           options={{
@@ -56,7 +86,7 @@ function Navigation() {
             headerShown: true,
             headerShadowVisible: true,
             headerBackTitleVisible: false,
-            headerStyle: { backgroundColor: "#171B36" },
+            headerStyle: { backgroundColor: "#DE7773" },
             headerTitleAlign: "center",
             headerTintColor: "#fff",
             gestureEnabled: true,
