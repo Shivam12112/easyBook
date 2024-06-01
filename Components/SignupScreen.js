@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
+import React, { useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -11,13 +11,57 @@ import {
   View,
 } from "react-native";
 import TextScreen from "./TextScreen";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, database } from "../authentication/firebaseConfig";
 import {
   heightPercentageToDP as hp2dp,
   widthPercentageToDP as wp2dp,
 } from "react-native-responsive-screen";
+import { doc, setDoc } from "firebase/firestore";
 
 function SignupScreen() {
+  const [userDetails, setUserDetails] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const navigation = useNavigation();
+
+  const handleInputText = (label, value) => {
+    if (label == "Name") setUserDetails({ ...userDetails, fullName: value });
+    else if (label == "Password")
+      setUserDetails({ ...userDetails, password: value });
+    else if (label == "Username / Email")
+      setUserDetails({ ...userDetails, email: value });
+    else setUserDetails({ ...userDetails, confirmPassword: value });
+  };
+
+  const handleRegister = async () => {
+    try {
+      await createUserWithEmailAndPassword(
+        auth,
+        userDetails.email,
+        userDetails.password
+      )
+        .then(async (res) => {
+          const user = auth.currentUser;
+          console.log(user);
+          const userRef = doc(database, "users", user.uid);
+          setDoc(userRef, {
+            displayName: userDetails.fullName,
+            email: userDetails.email,
+            uid: user.uid,
+          });
+        })
+        .then(() => {
+          navigation.replace("HomeScreen");
+        });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <SafeAreaView
       style={{
@@ -58,17 +102,29 @@ function SignupScreen() {
           </View>
         </View>
         <View style={[styles.sectionContainer, { marginTop: 20 }]}>
-          <TextScreen label="Name" />
-          <TextScreen label="Username / Email" />
+          <TextScreen
+            label="Name"
+            handleInputText={handleInputText}
+            value={userDetails.fullName}
+          />
+          <TextScreen
+            label="Username / Email"
+            handleInputText={handleInputText}
+            value={userDetails.email}
+          />
           <TextScreen
             label="Password"
             secureTextEntry={true}
             keyboardType="password"
+            handleInputText={handleInputText}
+            value={userDetails.password}
           />
           <TextScreen
             label="Confirm Password"
             secureTextEntry={true}
             keyboardType="password"
+            handleInputText={handleInputText}
+            value={userDetails.confirmPassword  }
           />
         </View>
         <View style={styles.sectionContainer}>
@@ -83,7 +139,7 @@ function SignupScreen() {
           >
             <TouchableOpacity
               onPress={() => {
-                // navigation.navigate('homeScreen');
+                handleRegister();
               }}
               style={styles.loginButton}
             >

@@ -1,5 +1,5 @@
-import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import { useNavigation } from "@react-navigation/native";
+import React, { useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -9,70 +9,113 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import TextScreen from './TextScreen';
+} from "react-native";
+import TextScreen from "./TextScreen";
 import {
   heightPercentageToDP as hp2dp,
   widthPercentageToDP as wp2dp,
-} from 'react-native-responsive-screen';
+} from "react-native-responsive-screen";
+import { auth, database } from "../authentication/firebaseConfig";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  handleFetchBookByName,
+  loginWithEmailAndPassword,
+} from "../redux/slices";
+import Loader from "./Loader";
 
 function LoginScreen() {
+  const [loginDetails, setLoginDetails] = useState({
+    email: "svm.kushwaha@gmail.com",
+    password: "Admin@123",
+  });
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  console.log(loading);
+  const handleInputText = (label, value) => {
+    if (label == "Password")
+      setLoginDetails({ ...loginDetailsLOADING, password: value });
+    else setLoginDetails({ ...loginDetails, email: value });
+  };
+
+  const handleLogin = () => {
+    setLoading(true);
+    dispatch(loginWithEmailAndPassword(loginDetails)).then((res) => {
+      dispatch(handleFetchBookByName("Iron man")).then(() => {
+        setLoading(false);
+        navigation.navigate("HomeScreen");
+      });
+    });
+  };
+
   return (
     <SafeAreaView
       style={{
-        backgroundColor: 'white',
+        backgroundColor: "white",
         flex: 1,
-      }}>
+      }}
+    >
       <StatusBar />
+      <Loader loading={loading} />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           style={{
             marginTop: hp2dp(10),
-            display: 'flex',
-            justifyContent: 'center',
-            alignContent: 'center',
-            flexDirection: 'row',
-          }}>
+            display: "flex",
+            justifyContent: "center",
+            alignContent: "center",
+            flexDirection: "row",
+          }}
+        >
           <Image
             style={{
               height: 150,
               width: 150,
             }}
-            source={require('../assets/logo.png')}
+            source={require("../assets/logo.png")}
           />
         </View>
         <View
           style={{
             marginTop: 32,
-            display: 'flex',
-            justifyContent: 'center',
-            flexDirection: 'row',
-          }}>
-          <View style={{width: wp2dp(85)}}>
-            <Text style={{fontSize: 28, color: 'black'}}>Login</Text>
+            display: "flex",
+            justifyContent: "center",
+            flexDirection: "row",
+          }}
+        >
+          <View style={{ width: wp2dp(85) }}>
+            <Text style={{ fontSize: 28, color: "black" }}>Login</Text>
             <Text>Please Signin to continue</Text>
           </View>
         </View>
-        <View style={[styles.sectionContainer, {marginTop: 20}]}>
-          <TextScreen label="Username / Email" />
-          <TextScreen label="Password" secureTextEntry={true} />
+        <View style={[styles.sectionContainer, { marginTop: 20 }]}>
+          <TextScreen
+            label="Username / Email"
+            handleInputText={handleInputText}
+            value={loginDetails.email}
+          />
+          <TextScreen
+            label="Password"
+            secureTextEntry={true}
+            handleInputText={handleInputText}
+            value={loginDetails.password}
+          />
         </View>
         <View style={styles.sectionContainer}>
           <View
             style={{
-              display: 'flex',
-              justifyContent: 'center',
+              display: "flex",
+              justifyContent: "center",
               // alignContent: 'center',
-              flexDirection: 'row',
+              flexDirection: "row",
               // alignItems: 'center',
-            }}>
-            <TouchableOpacity
-              onPress={() => {
-                // navigation.navigate('homeScreen');
-              }}
-              style={styles.loginButton}>
-              <Text style={{fontSize: 18, color: 'white', fontWeight: '700'}}>
+            }}
+          >
+            <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
+              <Text style={{ fontSize: 18, color: "white", fontWeight: "700" }}>
                 Login
               </Text>
             </TouchableOpacity>
@@ -82,27 +125,30 @@ function LoginScreen() {
           <View>
             <View
               style={{
-                display: 'flex',
-                justifyContent: 'center',
-                flexDirection: 'row',
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "row",
                 marginBottom: 10,
-              }}>
-              <Text style={{fontSize: 14, color: 'black'}}>
-                Do not have an account?{'  '}
+              }}
+            >
+              <Text style={{ fontSize: 14, color: "black" }}>
+                Do not have an account?{"  "}
                 <Text
-                  style={{fontSize: 14, color: '#1581ed'}}
-                  onPress={() => navigation.navigate('SignupScreen')}>
+                  style={{ fontSize: 14, color: "#1581ed" }}
+                  onPress={() => navigation.navigate("SignupScreen")}
+                >
                   Sign Up
                 </Text>
               </Text>
             </View>
             <View
               style={{
-                display: 'flex',
-                justifyContent: 'center',
-                flexDirection: 'row',
-              }}>
-              <Text style={{fontSize: 14, color: '#1581ed'}}>
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "row",
+              }}
+            >
+              <Text style={{ fontSize: 14, color: "#1581ed" }}>
                 Forget Password?
               </Text>
             </View>
@@ -120,24 +166,24 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   sectionDescription: {
     marginTop: 8,
     fontSize: 18,
-    fontWeight: '400',
+    fontWeight: "400",
   },
   highlight: {
-    fontWeight: '700',
+    fontWeight: "700",
   },
 
   loginButton: {
     height: 35,
-    display: 'flex',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1581ed',
+    display: "flex",
+    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#1581ed",
     borderBottomWidth: 2,
     width: wp2dp(85),
     height: 45,

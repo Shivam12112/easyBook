@@ -2,15 +2,18 @@ import React from "react";
 import { View } from "react-native";
 import Navigation from "./Navigation";
 import { WithSplashScreen } from "./WithSplashScreen";
-import { store } from "./redux/store";
-import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "./redux/store";
+import { Provider, useSelector } from "react-redux";
 
 const App = () => {
   return (
     <Provider store={store}>
-      <WithSplashScreen isAppReady={true}>
-        <Navigation />
-      </WithSplashScreen>
+      <PersistGate loading={null} persistor={persistor}>
+        <WithSplashScreen isAppReady={true}>
+          <Navigation />
+        </WithSplashScreen>
+      </PersistGate>
     </Provider>
   );
 };

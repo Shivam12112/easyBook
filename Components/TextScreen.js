@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -6,26 +6,31 @@ import {
   Text,
   Animated,
   Pressable,
-} from 'react-native';
+} from "react-native";
 import {
   heightPercentageToDP as hp2dp,
   widthPercentageToDP as wp2dp,
-} from 'react-native-responsive-screen';
+} from "react-native-responsive-screen";
 
-const TextScreen = ({label, secureTextEntry, keyboardType}) => {
-  const [value, setValue] = useState('');
+const TextScreen = ({
+  label,
+  secureTextEntry,
+  keyboardType,
+  handleInputText,
+  value
+}) => {
   const moveText = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (value !== '') {
+    if (value !== "") {
       moveTextTop();
-    } else if (value === '') {
+    } else if (value === "") {
       moveTextBottom();
     }
   }, [value]);
 
-  const onChangeText = text => {
-    setValue(text);
+  const onChangeText = (text) => {
+    handleInputText(label, text);
   };
 
   const onFocusHandler = () => {
@@ -35,7 +40,7 @@ const TextScreen = ({label, secureTextEntry, keyboardType}) => {
   };
 
   const onBlurHandler = () => {
-    if (value === '') {
+    if (value === "") {
       moveTextBottom();
     }
   };
@@ -75,12 +80,12 @@ const TextScreen = ({label, secureTextEntry, keyboardType}) => {
         <Text style={styles.label}>{label}</Text>
       </Animated.View>
       <TextInput
-        autoCapitalize={'none'}
+        autoCapitalize={"none"}
         style={styles.input}
-        keyboardType={keyboardType ? keyboardType : ''}
+        keyboardType={keyboardType ? keyboardType : ""}
         secureTextEntry={secureTextEntry}
         value={value}
-        onChangeText={text => onChangeText(text)}
+        onChangeText={(text) => onChangeText(text)}
         editable={true}
         onFocus={onFocusHandler}
         onBlur={onBlurHandler}
@@ -94,33 +99,33 @@ export default TextScreen;
 const styles = StyleSheet.create({
   container: {
     marginTop: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingTop: 5,
     paddingHorizontal: 10,
     borderBottomWidth: 2,
-    borderColor: '#bdbdbd',
+    borderColor: "#bdbdbd",
     width: wp2dp(85),
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   icon: {
     width: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   input: {
     borderWidth: 0,
     fontSize: 13,
     height: 35,
-    color: '#000',
+    color: "#000",
   },
   label: {
-    color: 'grey',
+    color: "grey",
     fontSize: 14,
   },
   animatedStyle: {
     top: 5,
     paddingHorizontal: 10,
-    position: 'absolute',
+    position: "absolute",
     // borderRadius: 90,
     zIndex: 10000,
   },
