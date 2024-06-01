@@ -46,7 +46,7 @@ function LoginScreen() {
     dispatch(loginWithEmailAndPassword(loginDetails)).then((res) => {
       dispatch(handleFetchBookByName("Iron man")).then(() => {
         setLoading(false);
-        navigation.navigate("HomeScreen");
+        navigation.navigate("TabViewScreen");
       });
     });
   };

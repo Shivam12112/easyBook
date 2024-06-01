@@ -20,7 +20,6 @@ export default function TabViewScreen({ navigation }) {
   const layout = useWindowDimensions();
   const dispatch = useDispatch();
   const { loggedInUser } = useSelector((state) => state);
-  console.log("useruseruseruseruseruser", loggedInUser.displayName);
   const [index, setIndex] = useState(0);
   const [routes] = useState([{ key: "first" }, { key: "second" }]);
   const renderScene = SceneMap({

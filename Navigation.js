@@ -47,7 +47,7 @@ function Navigation() {
           component={TabViewScreen}
           options={{
             title: "",
-            headerShown: true,
+            headerShown: false,
             headerStyle: { backgroundColor: "#DE7773" },
             headerTintColor: "#fff",
             gestureEnabled: true,
