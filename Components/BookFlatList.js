@@ -1,4 +1,4 @@
-// import { AntDesign } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import React, { useCallback, useState } from "react";
 import {
@@ -111,7 +111,7 @@ const BookFlatList = ({ data }) => {
                   justifyContent: "center",
                 }}
               >
-                {/* <AntDesign name="right" size={30} color="#b5aeae" /> */}
+                <AntDesign name="right" size={30} color="#b5aeae" />
               </View>
             </View>
           </View>

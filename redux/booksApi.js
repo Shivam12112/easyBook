@@ -3,9 +3,10 @@ import { Alert } from "react-native";
 
 export const fetchBookByName = async (bookName) => {
   try {
-    const response = await axios.get(
-      `https://www.googleapis.com/books/v1/volumes?q=${bookName}`
-    );
+    const url = bookName
+      ? `https://www.googleapis.com/books/v1/volumes?q=${bookName}`
+      : `https://www.googleapis.com/books/v1/volumes?q=.`;
+    const response = await axios.get(url);
     const data = await response.data;
     return data;
   } catch (error) {

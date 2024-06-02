@@ -46,7 +46,6 @@ function SignupScreen() {
       )
         .then(async (res) => {
           const user = auth.currentUser;
-          console.log(user);
           const userRef = doc(database, "users", user.uid);
           setDoc(userRef, {
             displayName: userDetails.fullName,
@@ -55,7 +54,7 @@ function SignupScreen() {
           });
         })
         .then(() => {
-          navigation.replace("HomeScreen");
+          navigation.replace("TabViewScreen");
         });
     } catch (error) {
       console.log(error);
@@ -85,7 +84,7 @@ function SignupScreen() {
               height: 150,
               width: 150,
             }}
-            source={require("../assets/logo.png")}
+            source={require("../assets/open-book-icon.png")}
           />
         </View>
         <View
@@ -124,7 +123,7 @@ function SignupScreen() {
             secureTextEntry={true}
             keyboardType="password"
             handleInputText={handleInputText}
-            value={userDetails.confirmPassword  }
+            value={userDetails.confirmPassword}
           />
         </View>
         <View style={styles.sectionContainer}>

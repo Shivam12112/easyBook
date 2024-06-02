@@ -19,7 +19,7 @@ import BookFlatList from "./BookFlatList";
 import Loader from "./Loader";
 
 const HomeScreen = () => {
-  const [search, setSearch] = useState("Spider Man");
+  const [search, setSearch] = useState("");
   const { books, loading } = useSelector((state) => state);
 
   const dispatch = useDispatch();
@@ -30,11 +30,8 @@ const HomeScreen = () => {
   };
 
   const handleBookSearch = () => {
-    // persistor.purge();
-    // navigation.replace("LoginScreen");
-
     if (search) {
-      dispatch(handleFetchBookByName(search));
+      dispatch(handleFetchBookByName(search)).then(() => setSearch(""));
     } else {
       Alert.alert("Alert!", "Please enter the book name.");
     }
@@ -74,6 +71,7 @@ const HomeScreen = () => {
     <ImageBackground
       source={imageBackground}
       style={{
+        backgroundColor: "gray",
         flex: 1,
       }}
     >
@@ -130,6 +128,26 @@ const HomeScreen = () => {
               <Text style={{ fontWeight: "bold", color: "white" }}>Search</Text>
             </TouchableOpacity>
           </View>
+        </View>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            paddingHorizontal: 16,
+            paddingBottom: 20,
+            borderRadius: 5,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 25,
+              color: "#fff",
+              fontWeight: "bold",
+            }}
+          >
+            Popular Books
+          </Text>
         </View>
         <ScrollView>
           <View

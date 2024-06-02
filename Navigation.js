@@ -12,18 +12,24 @@ import ViewBook from "./Components/ViewBook";
 import TabView from "./Components/TabView";
 import TabViewScreen from "./Components/TabView";
 import Profile from "./Components/Profile";
+import OnboardingScreen from "./Components/OnboardingScreen";
 
 const Stack = createStackNavigator();
 
 function Navigation() {
-  const { loggedInUser, headerShown } = useSelector((state) => state);
-  // console.log(loggedInUser);
+  const { loggedInUser, headerShown, onboardingScreen } = useSelector(
+    (state) => state
+  );
 
   return (
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName={
-          Object.keys(loggedInUser).length ? "TabViewScreen" : "LoginScreen"
+          Object.keys(loggedInUser)?.length
+            ? "TabViewScreen"
+            : onboardingScreen
+            ? "OnboardingScreen"
+            : "LoginScreen"
         }
         screenOptions={{
           headerShown: false,
@@ -33,9 +39,14 @@ function Navigation() {
         }}
       >
         <Stack.Screen
+          name="OnboardingScreen"
+          component={OnboardingScreen}
+          options={{ title: "", header: () => null }}
+        />
+        <Stack.Screen
           name="LoginScreen"
           component={LoginScreen}
-          options={{ title: "", header: () => null }}
+          options={{ title: "", header: () => null, gestureEnabled: false }}
         />
         <Stack.Screen
           name="SignupScreen"

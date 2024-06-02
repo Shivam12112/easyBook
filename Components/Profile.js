@@ -32,28 +32,12 @@ const profiles = [
     avatar:
       "https://ps.w.org/user-avatar-reloaded/assets/icon-256x256.png?rev=2540745",
   },
-  {
-    id: "4",
-    username: "johndoe4",
-    avatar: "https://www.example.com/avatar4.png",
-  },
-  {
-    id: "5",
-    username: "johndoe5",
-    avatar: "https://www.example.com/avatar5.png",
-  },
-  {
-    id: "6",
-    username: "johndoe6",
-    avatar: "https://www.example.com/avatar6.png",
-  },
 ];
 
 const Profile = () => {
   const { loggedInUser } = useSelector((state) => state);
   const navigation = useNavigation();
 
-  console.log(loggedInUser.displayName);
 
   const handleLogOut = () => {
     auth.signOut();
@@ -72,7 +56,7 @@ const Profile = () => {
         />
         <Text style={styles.mainName}>{loggedInUser.displayName}</Text>
       </View>
-      <FlatList
+      {/* <FlatList
         data={profiles}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -81,7 +65,21 @@ const Profile = () => {
             <Text style={styles.username}>{item.username}</Text>
           </View>
         )}
-      />
+      /> */}
+      <View style={styles.profileItem}>
+        <Image source={{ uri: profiles[0].avatar }} style={styles.avatar} />
+        <View>
+          <Text style={styles.username}>{"Name"}</Text>
+          <Text style={styles.username}>{loggedInUser.displayName}</Text>
+        </View>
+      </View>
+      <View style={styles.profileItem}>
+        <Image source={{ uri: profiles[0].avatar }} style={styles.avatar} />
+        <View>
+          <Text style={styles.username}>{"Email"}</Text>
+          <Text style={styles.username}>{loggedInUser.email}</Text>
+        </View>
+      </View>
       <View
         style={{
           display: "flex",
@@ -135,7 +133,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "white",
-    padding: 10,
+    padding: 18,
     marginVertical: 5,
     marginHorizontal: 10,
     borderRadius: 10,

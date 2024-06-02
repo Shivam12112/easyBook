@@ -10,43 +10,43 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import TextScreen from "./TextScreen";
 import {
   heightPercentageToDP as hp2dp,
   widthPercentageToDP as wp2dp,
 } from "react-native-responsive-screen";
-import { auth, database } from "../authentication/firebaseConfig";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
 import { useDispatch, useSelector } from "react-redux";
 import {
   handleFetchBookByName,
+  handleOnboardingScreen,
   loginWithEmailAndPassword,
 } from "../redux/slices";
 import Loader from "./Loader";
+import TextScreen from "./TextScreen";
 
 function LoginScreen() {
   const [loginDetails, setLoginDetails] = useState({
     email: "svm.kushwaha@gmail.com",
     password: "Admin@123",
   });
+
   const [loading, setLoading] = useState(false);
+
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  console.log(loading);
   const handleInputText = (label, value) => {
     if (label == "Password")
-      setLoginDetails({ ...loginDetailsLOADING, password: value });
+      setLoginDetails({ ...loginDetails, password: value });
     else setLoginDetails({ ...loginDetails, email: value });
   };
 
   const handleLogin = () => {
     setLoading(true);
     dispatch(loginWithEmailAndPassword(loginDetails)).then((res) => {
-      dispatch(handleFetchBookByName("Iron man")).then(() => {
+      dispatch(handleFetchBookByName("")).then(() => {
         setLoading(false);
-        navigation.navigate("TabViewScreen");
+        dispatch(handleOnboardingScreen());
+        navigation.replace("TabViewScreen");
       });
     });
   };
@@ -75,7 +75,7 @@ function LoginScreen() {
               height: 150,
               width: 150,
             }}
-            source={require("../assets/logo.png")}
+            source={require("../assets/open-book-icon.png")}
           />
         </View>
         <View
@@ -109,9 +109,7 @@ function LoginScreen() {
             style={{
               display: "flex",
               justifyContent: "center",
-              // alignContent: 'center',
               flexDirection: "row",
-              // alignItems: 'center',
             }}
           >
             <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>

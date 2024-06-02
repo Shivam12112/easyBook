@@ -9,6 +9,7 @@ const initialState = {
   loading: false,
   loggedInUser: {},
   headerShown: false,
+  onboardingScreen: true,
 };
 
 export const loginWithEmailAndPassword = createAsyncThunk(
@@ -35,7 +36,6 @@ export const handleFetchBookById = createAsyncThunk(
   }
 );
 
-// Define action creator using createAction
 export const handleHeaderShown = createAction(
   "books/handleHeaderShown",
   (shown) => {
@@ -44,6 +44,22 @@ export const handleHeaderShown = createAction(
     };
   }
 );
+
+export const handleOnboardingScreen = createAction(
+  "books/onboardingScreen",
+  () => {
+    return {
+      payload: false,
+    };
+  }
+);
+
+const resetStateExceptOnboardingScreen = (state) => {
+  return {
+    ...initialState,
+    onboardingScreen: state.onboardingScreen,
+  };
+};
 
 export const bookSlice = createSlice({
   name: "books",
@@ -81,15 +97,14 @@ export const bookSlice = createSlice({
       .addCase(loginWithEmailAndPassword.rejected, (state) => {
         state.loading = false;
       })
-      // Corrected usage of handleHeaderShown action creator
       .addCase(handleHeaderShown, (state, action) => {
         state.headerShown = action.payload;
       })
-      .addCase(PURGE, () => {
-        return initialState;
-      });
+      .addCase(handleOnboardingScreen, (state, action) => {
+        state.onboardingScreen = action.payload;
+      })
+      .addCase(PURGE, (state) => resetStateExceptOnboardingScreen(state));
   },
 });
 
-// export const actions = { ...bookSlice.actions, handleHeaderShown };
 export default bookSlice.reducer;
