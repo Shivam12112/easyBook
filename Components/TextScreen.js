@@ -1,96 +1,76 @@
-import React, { useEffect, useState, useRef } from "react";
-import {
-  View,
-  StyleSheet,
-  TextInput,
-  Text,
-  Animated,
-  Pressable,
-} from "react-native";
-import {
-  heightPercentageToDP as hp2dp,
-  widthPercentageToDP as wp2dp,
-} from "react-native-responsive-screen";
+import React from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
+import { widthPercentageToDP as wp2dp } from "react-native-responsive-screen";
 
 const TextScreen = ({
   label,
   secureTextEntry,
   keyboardType,
   handleInputText,
-  value
+  value,
+  placeholder,
 }) => {
-  const moveText = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (value !== "") {
-      moveTextTop();
-    } else if (value === "") {
-      moveTextBottom();
-    }
-  }, [value]);
-
   const onChangeText = (text) => {
     handleInputText(label, text);
   };
 
-  const onFocusHandler = () => {
-    // if (value !== '') {
-    moveTextTop();
-    // }
-  };
-
-  const onBlurHandler = () => {
-    if (value === "") {
-      moveTextBottom();
-    }
-  };
-
-  const moveTextTop = () => {
-    Animated.timing(moveText, {
-      toValue: 0.6,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const moveTextBottom = () => {
-    Animated.timing(moveText, {
-      toValue: -0.2,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const yVal = moveText.interpolate({
-    inputRange: [0, 1],
-    outputRange: [4, -20],
-  });
-
-  const animStyle = {
-    transform: [
-      {
-        translateY: yVal,
-      },
-    ],
-  };
-
   return (
-    <View style={styles.container}>
-      <Animated.View style={[styles.animatedStyle, animStyle]}>
-        <Text style={styles.label}>{label}</Text>
-      </Animated.View>
-      <TextInput
-        autoCapitalize={"none"}
-        style={styles.input}
-        keyboardType={keyboardType ? keyboardType : ""}
-        secureTextEntry={secureTextEntry}
-        value={value}
-        onChangeText={(text) => onChangeText(text)}
-        editable={true}
-        onFocus={onFocusHandler}
-        onBlur={onBlurHandler}
-        blurOnSubmit
-      />
+    // <View style={styles.container}>
+    //   <Animated.View style={[styles.animatedStyle, animStyle]}>
+    //     <Text style={styles.label}>{label}</Text>
+    //   </Animated.View>
+    //   <TextInput
+    //     autoCapitalize={"none"}
+    //     style={styles.input}
+    //     keyboardType={keyboardType ? keyboardType : ""}
+    //     secureTextEntry={secureTextEntry}
+    //     value={value}
+    //     onChangeText={(text) => onChangeText(text)}
+    //     editable={true}
+    //     onFocus={onFocusHandler}
+    //     onBlur={onBlurHandler}
+    //     blurOnSubmit
+    //   />
+    // </View>
+    <View
+      style={{
+        marginTop: 10,
+      }}
+    >
+      {/* <Text
+        style={{
+          color: "gray",
+          marginBottom: 5,
+          paddingHorizontal: 5,
+        }}
+      >
+        {label}
+      </Text> */}
+      <View
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <TextInput
+          style={{
+            paddingHorizontal: 10,
+            height: 40,
+            borderColor: "#bdbdbd",
+            width: wp2dp(85),
+            borderRadius: 5,
+            borderWidth: 1,
+          }}
+          name="Email"
+          value={value}
+          secureTextEntry={secureTextEntry}
+          onChangeText={(text) => onChangeText(text)}
+          placeholder={label}
+          autoCapitalize={false}
+          keyboardType={keyboardType ? keyboardType : ""}
+          // onBlur={validateLogin}
+        />
+      </View>
     </View>
   );
 };
@@ -99,10 +79,10 @@ export default TextScreen;
 const styles = StyleSheet.create({
   container: {
     marginTop: 20,
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
     paddingTop: 5,
     paddingHorizontal: 10,
-    borderBottomWidth: 2,
+    borderWidth: 1,
     borderColor: "#bdbdbd",
     width: wp2dp(85),
     alignSelf: "center",

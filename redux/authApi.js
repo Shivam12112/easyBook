@@ -14,6 +14,6 @@ export const handleLoginWithEmailAndPassword = async (loginDetails) => {
     const userData = await getDoc(userRef);
     return userData.data();
   } catch (error) {
-    console.log(error);
+    return error.message;
   }
 };

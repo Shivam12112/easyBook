@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   FlatList,
   Image,
@@ -12,6 +12,7 @@ import {
 import { useSelector } from "react-redux";
 import { auth } from "../authentication/firebaseConfig";
 import { persistor } from "../redux/store";
+import { AntDesign } from "@expo/vector-icons";
 
 const profiles = [
   {
@@ -38,12 +39,24 @@ const Profile = () => {
   const { loggedInUser } = useSelector((state) => state);
   const navigation = useNavigation();
 
-
   const handleLogOut = () => {
     auth.signOut();
     persistor.purge();
     navigation.replace("LoginScreen");
   };
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => {
+        <AntDesign
+          style={styles.mainName}
+          name="right"
+          size={30}
+          color="#b5aeae"
+        />;
+      },
+    });
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -54,7 +67,20 @@ const Profile = () => {
           }}
           style={styles.mainAvatar}
         />
-        <Text style={styles.mainName}>{loggedInUser.displayName}</Text>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+          }}
+        >
+          <Text style={styles.mainName}>{loggedInUser.displayName}</Text>
+          <AntDesign
+            style={styles.mainName}
+            name="right"
+            size={30}
+            color="#b5aeae"
+          />
+        </View>
       </View>
       {/* <FlatList
         data={profiles}

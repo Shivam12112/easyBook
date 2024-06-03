@@ -11,13 +11,17 @@ import {
   View,
 } from "react-native";
 import TextScreen from "./TextScreen";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import { auth, database } from "../authentication/firebaseConfig";
 import {
   heightPercentageToDP as hp2dp,
   widthPercentageToDP as wp2dp,
 } from "react-native-responsive-screen";
 import { doc, setDoc } from "firebase/firestore";
+import Loader from "./Loader";
 
 function SignupScreen() {
   const [userDetails, setUserDetails] = useState({
@@ -26,6 +30,7 @@ function SignupScreen() {
     password: "",
     confirmPassword: "",
   });
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
   const handleInputText = (label, value) => {
@@ -38,6 +43,8 @@ function SignupScreen() {
   };
 
   const handleRegister = async () => {
+    setLoading(true);
+
     try {
       await createUserWithEmailAndPassword(
         auth,
@@ -54,6 +61,7 @@ function SignupScreen() {
           });
         })
         .then(() => {
+          setLoading(false);
           navigation.replace("TabViewScreen");
         });
     } catch (error) {
@@ -64,7 +72,6 @@ function SignupScreen() {
   return (
     <SafeAreaView
       style={{
-        backgroundColor: "white",
         flex: 1,
       }}
     >
@@ -81,8 +88,8 @@ function SignupScreen() {
         >
           <Image
             style={{
-              height: 150,
-              width: 150,
+              height: 130,
+              width: 130,
             }}
             source={require("../assets/open-book-icon.png")}
           />
@@ -96,8 +103,15 @@ function SignupScreen() {
           }}
         >
           <View style={{ width: wp2dp(85) }}>
-            <Text style={{ fontSize: 28, color: "black" }}>Sign Up</Text>
-            <Text>Please Signin to continue</Text>
+            <Text style={{ fontSize: 28, color: "black" }}>Create Account</Text>
+            <Text
+              style={{
+                marginTop: 8,
+                color: "gray",
+              }}
+            >
+              Join us for seamless access to a wide variety of books.
+            </Text>
           </View>
         </View>
         <View style={[styles.sectionContainer, { marginTop: 20 }]}>
@@ -105,11 +119,13 @@ function SignupScreen() {
             label="Name"
             handleInputText={handleInputText}
             value={userDetails.fullName}
+            keyboardType="default"
           />
           <TextScreen
             label="Username / Email"
             handleInputText={handleInputText}
             value={userDetails.email}
+            keyboardType="email-address"
           />
           <TextScreen
             label="Password"
@@ -131,9 +147,7 @@ function SignupScreen() {
             style={{
               display: "flex",
               justifyContent: "center",
-              // alignContent: 'center',
               flexDirection: "row",
-              // alignItems: 'center',
             }}
           >
             <TouchableOpacity
@@ -175,12 +189,16 @@ function SignupScreen() {
                 flexDirection: "row",
               }}
             >
-              <Text style={{ fontSize: 14, color: "#1581ed" }}>
+              <Text
+                style={{ fontSize: 14, color: "#1581ed" }}
+                onPress={() => navigation.navigate("ForgetPasswordScreen")}
+              >
                 Forget Password?
               </Text>
             </View>
           </View>
         </View>
+        <Loader loading={loading} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -211,10 +229,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#1581ed",
-    borderBottomWidth: 2,
+    borderRadius: 5,
     width: wp2dp(85),
     height: 45,
-    // borderRadius: 5,
   },
 });
 

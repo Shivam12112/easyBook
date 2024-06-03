@@ -1,11 +1,11 @@
 import React from "react";
 import {
-    Image,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Swiper from "react-native-swiper";
 import { useDispatch } from "react-redux";
@@ -19,7 +19,7 @@ const OnboardingScreen = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       <Swiper
         loop={false}
-        paginationStyle={styles.paginationStyle}
+        paginationStyle={{}}
         dotStyle={styles.dotStyle}
         activeDotStyle={styles.activeDotStyle}
       >
@@ -75,7 +75,7 @@ const OnboardingScreen = ({ navigation }) => {
               justifyContent: "center",
               height: 40,
               width: 200,
-              backgroundColor: "#DE7773",
+              backgroundColor: "#1581ed",
               borderRadius: 5,
             }}
           >
@@ -92,9 +92,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
   },
-  paginationStyle: {
-    // bottom: 70,
-  },
   dotStyle: {
     backgroundColor: "#c4c4c4",
     width: 10,
@@ -103,7 +100,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   activeDotStyle: {
-    backgroundColor: "#DE7773",
+    backgroundColor: "#1581ed",
     width: 40,
     height: 10,
     borderRadius: 5,

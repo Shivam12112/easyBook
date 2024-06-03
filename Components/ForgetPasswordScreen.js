@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
+import { sendPasswordResetEmail } from "firebase/auth";
 import React, { useState } from "react";
 import {
   Image,
@@ -10,24 +11,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import FlashMessage, { showMessage } from "react-native-flash-message";
 import {
   heightPercentageToDP as hp2dp,
   widthPercentageToDP as wp2dp,
 } from "react-native-responsive-screen";
 import { useDispatch } from "react-redux";
-import {
-  handleFetchBookByName,
-  handleOnboardingScreen,
-  loginWithEmailAndPassword,
-} from "../redux/slices";
+import { auth } from "../authentication/firebaseConfig";
 import Loader from "./Loader";
 import TextScreen from "./TextScreen";
-import FlashMessage, { showMessage } from "react-native-flash-message";
 
-function LoginScreen() {
+function ForgetPasswordScreen() {
   const [loginDetails, setLoginDetails] = useState({
-    email: "svm.kushwaha@gmail.com",
-    password: "Admin@123",
+    email: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -36,7 +32,6 @@ function LoginScreen() {
   const dispatch = useDispatch();
 
   const handleInputText = (label, value) => {
-    console.log(label, value);
     if (label == "Password")
       setLoginDetails({ ...loginDetails, password: value });
     else setLoginDetails({ ...loginDetails, email: value });
@@ -45,33 +40,40 @@ function LoginScreen() {
     var re = /\S+@\S+\.\S+/;
     const email = re.test(loginDetails.email);
   };
-  const handleLogin = () => {
-    if (loginDetails.email || loginDetails.password) {
-      setLoading(true);
-      dispatch(loginWithEmailAndPassword(loginDetails))
-        .then((res) => {
-          setLoading(false);
-          if (!res?.payload?.uid) {
-            console.log(res.payload, "aassddffgg");
-            showMessage({
-              message: "Error!",
-              description: res?.payload,
-              type: "danger",
-              duration: 4000, // 3 seconds
-              floating: true,
-            });
-          } else {
-            dispatch(handleFetchBookByName("")).then(() => {
-              dispatch(handleOnboardingScreen());
-              navigation.replace("TabViewScreen");
-            });
-          }
-        })
-        .catch((err) => {
-          setLoading(false);
-          console.log("aaaaaaaaaaa", err);
+  const handleForgetPassword = () => {
+    setLoading(true);
+    sendPasswordResetEmail(auth, loginDetails.email)
+      .then(() => {
+        showMessage({
+          message: "Email Sent",
+          description:
+            "Password reset email sent successfully. Please check your email.",
+          type: "success",
+          duration: 3000, // 3 seconds
+          floating: true,
         });
-    }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err.code);
+        setLoading(false);
+        if (err.code === "auth/invalid-email")
+          showMessage({
+            message: "Invalid Email",
+            description: "The email address is badly formatted.",
+            type: "danger",
+            duration: 3000, // 3 seconds
+            floating: true,
+          });
+        else
+          showMessage({
+            message: "Error",
+            description: err.code,
+            type: "danger",
+            duration: 3000, // 3 seconds
+            floating: true,
+          });
+      });
   };
 
   return (
@@ -109,14 +111,17 @@ function LoginScreen() {
           }}
         >
           <View style={{ width: wp2dp(85) }}>
-            <Text style={{ fontSize: 28, color: "black" }}>Sign In</Text>
+            <Text style={{ fontSize: 28, color: "black" }}>
+              Forget Password
+            </Text>
             <Text
               style={{
                 marginTop: 8,
                 color: "gray",
               }}
             >
-              Please Signin to continue.
+              Please enter your registered email, and we will send you a reset
+              link.
             </Text>
           </View>
         </View>
@@ -128,13 +133,6 @@ function LoginScreen() {
             handleInputText={handleInputText}
             value={loginDetails.email}
           />
-          <TextScreen
-            label="Password"
-            secureTextEntry={true}
-            keyboardType="password"
-            handleInputText={handleInputText}
-            value={loginDetails.password}
-          />
         </View>
         <View style={styles.sectionContainer}>
           <View
@@ -145,17 +143,15 @@ function LoginScreen() {
             }}
           >
             <TouchableOpacity
-              onPress={handleLogin}
+              disabled={!loginDetails.email}
+              onPress={handleForgetPassword}
               style={[
                 styles.loginButton,
-                (!loginDetails.email || !loginDetails.password) && {
-                  backgroundColor: "#adadaa",
-                },
+                !loginDetails.email && { backgroundColor: "#adadaa" },
               ]}
-              disabled={!loginDetails.email || !loginDetails.password}
             >
               <Text style={{ fontSize: 18, color: "white", fontWeight: "700" }}>
-                Sign In
+                Send Link
               </Text>
             </TouchableOpacity>
           </View>
@@ -167,31 +163,13 @@ function LoginScreen() {
                 display: "flex",
                 justifyContent: "center",
                 flexDirection: "row",
-                marginBottom: 10,
-              }}
-            >
-              <Text style={{ fontSize: 14, color: "black" }}>
-                Do not have an account?{"  "}
-                <Text
-                  style={{ fontSize: 14, color: "#1581ed" }}
-                  onPress={() => navigation.navigate("SignupScreen")}
-                >
-                  Sign Up
-                </Text>
-              </Text>
-            </View>
-            <View
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                flexDirection: "row",
               }}
             >
               <Text
                 style={{ fontSize: 14, color: "#1581ed" }}
-                onPress={() => navigation.navigate("ForgetPasswordScreen")}
+                onPress={() => navigation.navigate("LoginScreen")}
               >
-                Forget Password?
+                Back to Login
               </Text>
             </View>
           </View>
@@ -231,6 +209,10 @@ const styles = StyleSheet.create({
     width: wp2dp(85),
     height: 45,
   },
+  flashMessage: {
+    borderRadius: 12,
+    marginHorizontal: 40,
+  },
 });
 
-export default LoginScreen;
+export default ForgetPasswordScreen;

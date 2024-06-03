@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
@@ -12,6 +12,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { actions, handleHeaderShown } from "../redux/slices";
 import HomeScreen from "./HomeScreen";
 import Profile from "./Profile";
+import { AntDesign } from "@expo/vector-icons";
+import { TextInput } from "react-native-gesture-handler";
+import { useFocusEffect } from "@react-navigation/native";
 
 const FirstRoute = () => <HomeScreen />;
 const SecondRoute = () => <Profile />;
@@ -65,18 +68,43 @@ export default function TabViewScreen({ navigation }) {
     }
   };
 
-  if (index) {
-    dispatch(handleHeaderShown(true));
-    navigation.setOptions({
-      title: loggedInUser.displayName,
-    });
-  } else {
-    navigation.setOptions({
-      title: "",
-      headerRight: () => null,
-    });
-    dispatch(handleHeaderShown(false));
-  }
+  useFocusEffect(
+    useCallback(() => {
+      if (index) {
+        dispatch(handleHeaderShown(true));
+        navigation.setOptions({
+          title: loggedInUser.displayName,
+          headerRight: () => (
+            <AntDesign
+              style={styles.mainName}
+              name="right"
+              size={30}
+              color="#b5aeae"
+            />
+          ),
+        });
+      } else {
+        navigation.setOptions({
+          title: "",
+          headerRight: () => (
+            <View style={{ padding: 10 }}>
+              <TextInput
+                onBlur={() => setSearch("")}
+                style={{
+                  width: 180,
+                  height: 35,
+                  borderRadius: 5,
+                  backgroundColor: `white`,
+                  paddingHorizontal: 8,
+                }}
+                placeholder="search here..."
+              />
+            </View>
+          ),
+        });
+      }
+    }, [index])
+  );
 
   return (
     <TabView

@@ -1,4 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import {
   Image,
@@ -14,63 +16,53 @@ import {
   heightPercentageToDP as hp2dp,
   widthPercentageToDP as wp2dp,
 } from "react-native-responsive-screen";
-import { useDispatch } from "react-redux";
-import {
-  handleFetchBookByName,
-  handleOnboardingScreen,
-  loginWithEmailAndPassword,
-} from "../redux/slices";
+import { auth, database } from "../authentication/firebaseConfig";
 import Loader from "./Loader";
 import TextScreen from "./TextScreen";
-import FlashMessage, { showMessage } from "react-native-flash-message";
 
-function LoginScreen() {
-  const [loginDetails, setLoginDetails] = useState({
-    email: "svm.kushwaha@gmail.com",
-    password: "Admin@123",
+function EditProfile() {
+  const [userDetails, setUserDetails] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
-
   const [loading, setLoading] = useState(false);
-
   const navigation = useNavigation();
-  const dispatch = useDispatch();
 
   const handleInputText = (label, value) => {
-    console.log(label, value);
-    if (label == "Password")
-      setLoginDetails({ ...loginDetails, password: value });
-    else setLoginDetails({ ...loginDetails, email: value });
+    if (label == "Name") setUserDetails({ ...userDetails, fullName: value });
+    else if (label == "Password")
+      setUserDetails({ ...userDetails, password: value });
+    else if (label == "Username / Email")
+      setUserDetails({ ...userDetails, email: value });
+    else setUserDetails({ ...userDetails, confirmPassword: value });
   };
-  const validateLogin = () => {
-    var re = /\S+@\S+\.\S+/;
-    const email = re.test(loginDetails.email);
-  };
-  const handleLogin = () => {
-    if (loginDetails.email || loginDetails.password) {
-      setLoading(true);
-      dispatch(loginWithEmailAndPassword(loginDetails))
-        .then((res) => {
-          setLoading(false);
-          if (!res?.payload?.uid) {
-            console.log(res.payload, "aassddffgg");
-            showMessage({
-              message: "Error!",
-              description: res?.payload,
-              type: "danger",
-              duration: 4000, // 3 seconds
-              floating: true,
-            });
-          } else {
-            dispatch(handleFetchBookByName("")).then(() => {
-              dispatch(handleOnboardingScreen());
-              navigation.replace("TabViewScreen");
-            });
-          }
+
+  const handleRegister = async () => {
+    setLoading(true);
+
+    try {
+      await createUserWithEmailAndPassword(
+        auth,
+        userDetails.email,
+        userDetails.password
+      )
+        .then(async (res) => {
+          const user = auth.currentUser;
+          const userRef = doc(database, "users", user.uid);
+          setDoc(userRef, {
+            displayName: userDetails.fullName,
+            email: userDetails.email,
+            uid: user.uid,
+          });
         })
-        .catch((err) => {
+        .then(() => {
           setLoading(false);
-          console.log("aaaaaaaaaaa", err);
+          navigation.replace("TabViewScreen");
         });
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -81,7 +73,6 @@ function LoginScreen() {
       }}
     >
       <StatusBar />
-      <FlashMessage position="top" />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           style={{
@@ -109,31 +100,43 @@ function LoginScreen() {
           }}
         >
           <View style={{ width: wp2dp(85) }}>
-            <Text style={{ fontSize: 28, color: "black" }}>Sign In</Text>
+            <Text style={{ fontSize: 28, color: "black" }}>Create Account</Text>
             <Text
               style={{
                 marginTop: 8,
                 color: "gray",
               }}
             >
-              Please Signin to continue.
+              Join us for seamless access to a wide variety of books.
             </Text>
           </View>
         </View>
         <View style={[styles.sectionContainer, { marginTop: 20 }]}>
           <TextScreen
-            label="Email Address"
-            secureTextEntry={false}
-            keyboardType="password"
+            label="Name"
             handleInputText={handleInputText}
-            value={loginDetails.email}
+            value={userDetails.fullName}
+            keyboardType="default"
+          />
+          <TextScreen
+            label="Username / Email"
+            handleInputText={handleInputText}
+            value={userDetails.email}
+            keyboardType="email-address"
           />
           <TextScreen
             label="Password"
             secureTextEntry={true}
             keyboardType="password"
             handleInputText={handleInputText}
-            value={loginDetails.password}
+            value={userDetails.password}
+          />
+          <TextScreen
+            label="Confirm Password"
+            secureTextEntry={true}
+            keyboardType="password"
+            handleInputText={handleInputText}
+            value={userDetails.confirmPassword}
           />
         </View>
         <View style={styles.sectionContainer}>
@@ -145,17 +148,13 @@ function LoginScreen() {
             }}
           >
             <TouchableOpacity
-              onPress={handleLogin}
-              style={[
-                styles.loginButton,
-                (!loginDetails.email || !loginDetails.password) && {
-                  backgroundColor: "#adadaa",
-                },
-              ]}
-              disabled={!loginDetails.email || !loginDetails.password}
+              onPress={() => {
+                handleRegister();
+              }}
+              style={styles.loginButton}
             >
               <Text style={{ fontSize: 18, color: "white", fontWeight: "700" }}>
-                Sign In
+                Sign Up
               </Text>
             </TouchableOpacity>
           </View>
@@ -171,12 +170,12 @@ function LoginScreen() {
               }}
             >
               <Text style={{ fontSize: 14, color: "black" }}>
-                Do not have an account?{"  "}
+                Already have an account?{"  "}
                 <Text
                   style={{ fontSize: 14, color: "#1581ed" }}
-                  onPress={() => navigation.navigate("SignupScreen")}
+                  onPress={() => navigation.navigate("LoginScreen")}
                 >
-                  Sign Up
+                  Login
                 </Text>
               </Text>
             </View>
@@ -233,4 +232,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default EditProfile;
