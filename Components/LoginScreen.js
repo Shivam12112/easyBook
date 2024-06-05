@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import FlashMessage, { showMessage } from "react-native-flash-message";
 import {
   heightPercentageToDP as hp2dp,
   widthPercentageToDP as wp2dp,
@@ -22,21 +23,18 @@ import {
 } from "../redux/slices";
 import Loader from "./Loader";
 import TextScreen from "./TextScreen";
-import FlashMessage, { showMessage } from "react-native-flash-message";
 
 function LoginScreen() {
   const [loginDetails, setLoginDetails] = useState({
-    email: "svm.kushwaha@gmail.com",
-    password: "Admin@123",
+    email: "",
+    password: "",
   });
 
   const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
   const dispatch = useDispatch();
-
   const handleInputText = (label, value) => {
-    console.log(label, value);
     if (label == "Password")
       setLoginDetails({ ...loginDetails, password: value });
     else setLoginDetails({ ...loginDetails, email: value });
@@ -52,7 +50,6 @@ function LoginScreen() {
         .then((res) => {
           setLoading(false);
           if (!res?.payload?.uid) {
-            console.log(res.payload, "aassddffgg");
             showMessage({
               message: "Error!",
               description: res?.payload,
@@ -63,13 +60,13 @@ function LoginScreen() {
           } else {
             dispatch(handleFetchBookByName("")).then(() => {
               dispatch(handleOnboardingScreen());
-              navigation.replace("TabViewScreen");
+              navigation.replace("HomeScreen");
             });
           }
         })
         .catch((err) => {
           setLoading(false);
-          console.log("aaaaaaaaaaa", err);
+          console.log("error :", err);
         });
     }
   };

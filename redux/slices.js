@@ -1,7 +1,11 @@
 import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchBookById, fetchBookByName } from "./booksApi";
-import { handleLoginWithEmailAndPassword } from "./authApi";
 import { PURGE } from "redux-persist";
+import {
+  handleLoginWithEmailAndPassword,
+  handleRegister,
+  updateProfileData,
+} from "./authApi";
+import { fetchBookById, fetchBookByName } from "./booksApi";
 
 const initialState = {
   books: {},
@@ -16,6 +20,14 @@ export const loginWithEmailAndPassword = createAsyncThunk(
   "loginWithEmailAndPassword",
   async (loginDetails) => {
     const result = await handleLoginWithEmailAndPassword(loginDetails);
+    return result;
+  }
+);
+export const registerWithEmailAndPassword = createAsyncThunk(
+  "registerWithEmailAndPassword",
+  async (userDetails) => {
+    const result = await handleRegister(userDetails);
+    console.log(result, "register");
     return result;
   }
 );
@@ -35,13 +47,11 @@ export const handleFetchBookById = createAsyncThunk(
     return response;
   }
 );
-
-export const handleHeaderShown = createAction(
-  "books/handleHeaderShown",
-  (shown) => {
-    return {
-      payload: shown,
-    };
+export const handleUpdateProfile = createAsyncThunk(
+  "books/handleUpdateProfile",
+  async (payload) => {
+    const response = await updateProfileData(payload);
+    return response;
   }
 );
 
@@ -97,8 +107,25 @@ export const bookSlice = createSlice({
       .addCase(loginWithEmailAndPassword.rejected, (state) => {
         state.loading = false;
       })
-      .addCase(handleHeaderShown, (state, action) => {
-        state.headerShown = action.payload;
+      .addCase(registerWithEmailAndPassword.pending, (state) => {
+        state.loading = false;
+      })
+      .addCase(registerWithEmailAndPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.loggedInUser = action.payload;
+      })
+      .addCase(registerWithEmailAndPassword.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(handleUpdateProfile.pending, (state) => {
+        state.loading = false;
+      })
+      .addCase(handleUpdateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.loggedInUser = action.payload;
+      })
+      .addCase(handleUpdateProfile.rejected, (state) => {
+        state.loading = false;
       })
       .addCase(handleOnboardingScreen, (state, action) => {
         state.onboardingScreen = action.payload;

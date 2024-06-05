@@ -6,6 +6,8 @@ import { PersistGate } from "redux-persist/integration/react";
 import Navigation from "./Navigation";
 import { WithSplashScreen } from "./WithSplashScreen";
 import { persistor, store } from "./redux/store";
+import { PaperProvider } from "react-native-paper";
+import FlashMessage from "react-native-flash-message";
 
 const App = () => {
   LogBox.ignoreLogs([
@@ -16,8 +18,11 @@ const App = () => {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <WithSplashScreen isAppReady={true}>
-          <Navigation />
+          <PaperProvider>
+            <Navigation />
+          </PaperProvider>
         </WithSplashScreen>
+        <FlashMessage style={{ marginTop: 10 }} position="top" />
       </PersistGate>
     </Provider>
   );

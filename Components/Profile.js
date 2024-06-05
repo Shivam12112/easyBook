@@ -1,182 +1,270 @@
-import { useNavigation } from "@react-navigation/native";
-import React, { useEffect } from "react";
+import React from "react";
+
 import {
-  FlatList,
-  Image,
+  MaterialCommunityIcons,
+  MaterialIcons
+} from "@expo/vector-icons";
+import moment from "moment";
+import {
+  SafeAreaView,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
-  View,
+  View
 } from "react-native";
+import { Avatar, Divider } from "react-native-paper";
+import {
+  heightPercentageToDP as hp2dp,
+  widthPercentageToDP as wp2dp,
+} from "react-native-responsive-screen";
 import { useSelector } from "react-redux";
-import { auth } from "../authentication/firebaseConfig";
-import { persistor } from "../redux/store";
-import { AntDesign } from "@expo/vector-icons";
 
-const profiles = [
-  {
-    id: "1",
-    username: "johndoe1",
-    avatar:
-      "https://ps.w.org/user-avatar-reloaded/assets/icon-256x256.png?rev=2540745",
-  },
-  {
-    id: "2",
-    username: "johndoe2",
-    avatar:
-      "https://ps.w.org/user-avatar-reloaded/assets/icon-256x256.png?rev=2540745",
-  },
-  {
-    id: "3",
-    username: "johndoe3",
-    avatar:
-      "https://ps.w.org/user-avatar-reloaded/assets/icon-256x256.png?rev=2540745",
-  },
-];
-
-const Profile = () => {
+function Profile() {
+  
   const { loggedInUser } = useSelector((state) => state);
-  const navigation = useNavigation();
-
-  const handleLogOut = () => {
-    auth.signOut();
-    persistor.purge();
-    navigation.replace("LoginScreen");
-  };
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => {
-        <AntDesign
-          style={styles.mainName}
-          name="right"
-          size={30}
-          color="#b5aeae"
-        />;
-      },
-    });
-  }, []);
+  
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Image
-          source={{
-            uri: "https://ps.w.org/user-avatar-reloaded/assets/icon-256x256.png?rev=2540745",
-          }}
-          style={styles.mainAvatar}
-        />
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: "#f3eaff",
+      }}
+    >
+      <StatusBar />
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           style={{
+            marginTop: hp2dp(5),
             display: "flex",
+            justifyContent: "center",
+            alignContent: "center",
             flexDirection: "row",
           }}
         >
-          <Text style={styles.mainName}>{loggedInUser.displayName}</Text>
-          <AntDesign
-            style={styles.mainName}
-            name="right"
-            size={30}
-            color="#b5aeae"
+          <Avatar.Image
+            size={140}
+            source={
+              loggedInUser.profilePicture
+                ? {
+                    uri: loggedInUser.profilePicture,
+                  }
+                : require("../assets/avatar.jpg")
+            }
           />
         </View>
-      </View>
-      {/* <FlatList
-        data={profiles}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.profileItem}>
-            <Image source={{ uri: item.avatar }} style={styles.avatar} />
-            <Text style={styles.username}>{item.username}</Text>
-          </View>
-        )}
-      /> */}
-      <View style={styles.profileItem}>
-        <Image source={{ uri: profiles[0].avatar }} style={styles.avatar} />
-        <View>
-          <Text style={styles.username}>{"Name"}</Text>
-          <Text style={styles.username}>{loggedInUser.displayName}</Text>
-        </View>
-      </View>
-      <View style={styles.profileItem}>
-        <Image source={{ uri: profiles[0].avatar }} style={styles.avatar} />
-        <View>
-          <Text style={styles.username}>{"Email"}</Text>
-          <Text style={styles.username}>{loggedInUser.email}</Text>
-        </View>
-      </View>
-      <View
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          alignContent: "center",
-          paddingVertical: 20,
-        }}
-      >
-        <TouchableOpacity
-          onPress={handleLogOut}
+        <View
           style={{
-            backgroundColor: "#DE7773",
-            height: 40,
-            paddingHorizontal: 20,
-            borderRadius: 5,
+            marginTop: hp2dp(1),
+            display: "flex",
             justifyContent: "center",
-            alignItems: "center",
+            alignContent: "center",
+            flexDirection: "row",
           }}
         >
-          <Text style={{ fontWeight: "bold", color: "white" }}>Logout</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+          <Text style={{ fontSize: 20 }}>{loggedInUser.displayName}</Text>
+        </View>
+        <View
+          style={{
+            marginTop: 32,
+            display: "flex",
+            justifyContent: "center",
+            flexDirection: "row",
+          }}
+        >
+          <View style={{ width: wp2dp(85) }}>
+            <Text style={{ fontSize: 25, color: "black" }}>Personal Info</Text>
+          </View>
+        </View>
+        <View style={[styles.sectionContainer, { marginTop: 20 }]}>
+          <View style={styles.rowItem}>
+            <View
+              style={{
+                flexDirection: "row",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <MaterialIcons
+                color="black"
+                size={24}
+                style={{
+                  justifyContent: "center",
+                  alignSelf: "center",
+                  marginRight: 5,
+                }}
+                name="email"
+              />
+              <View style={{ justifyContent: "center" }}>
+                <Text style={styles.profileDetailsText3}>Email</Text>
+                <Text
+                  style={[styles.profileDetailsText2, { width: wp2dp("46%") }]}
+                >
+                  {loggedInUser.email}
+                </Text>
+              </View>
+            </View>
+          </View>
+          <Divider
+            bold
+            style={{ marginTop: hp2dp(0.5), marginBottom: hp2dp(1) }}
+          />
+          <View style={styles.rowItem}>
+            <View
+              style={{
+                flexDirection: "row",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <MaterialCommunityIcons
+                color="black"
+                size={24}
+                style={{
+                  justifyContent: "center",
+                  alignSelf: "center",
+                  marginRight: 5,
+                }}
+                name={loggedInUser?.gender == 1 ? "human-male" : "human-female"}
+              />
+              <View style={{ justifyContent: "center" }}>
+                <Text style={styles.profileDetailsText3}>Gender</Text>
+                <Text
+                  style={[styles.profileDetailsText2, { width: wp2dp("46%") }]}
+                >
+                  {loggedInUser?.gender
+                    ? loggedInUser?.gender == 1
+                      ? "Male"
+                      : "Female"
+                    : "NA"}
+                </Text>
+              </View>
+            </View>
+          </View>
+          <Divider
+            bold
+            style={{ marginTop: hp2dp(0.5), marginBottom: hp2dp(1) }}
+          />
+          <View style={styles.rowItem}>
+            <View
+              style={{
+                flexDirection: "row",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <MaterialIcons
+                color="black"
+                size={24}
+                style={{
+                  justifyContent: "center",
+                  alignSelf: "center",
+                  marginRight: 5,
+                }}
+                name="cake"
+              />
+              <View style={{ justifyContent: "center" }}>
+                <Text style={styles.profileDetailsText3}>Date of Birth</Text>
+                <Text
+                  style={[styles.profileDetailsText2, { width: wp2dp("46%") }]}
+                >
+                  {loggedInUser?.dateOfBirth
+                    ? moment
+                        .unix(loggedInUser?.dateOfBirth)
+                        .format("DD-MM-YYYY")
+                    : "-- / -- / ----"}
+                </Text>
+              </View>
+            </View>
+          </View>
+          <Divider
+            bold
+            style={{ marginTop: hp2dp(0.5), marginBottom: hp2dp(1) }}
+          />
+          <View style={styles.rowItem}>
+            <View
+              style={{
+                flexDirection: "row",
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <MaterialIcons
+                color="black"
+                size={24}
+                style={{
+                  justifyContent: "center",
+                  alignSelf: "center",
+                  marginRight: 5,
+                }}
+                name="date-range"
+              />
+              <View style={{ justifyContent: "center" }}>
+                <Text style={styles.profileDetailsText3}>Date of Join</Text>
+                <Text
+                  style={[styles.profileDetailsText2, { width: wp2dp("46%") }]}
+                >
+                  {moment.unix(loggedInUser?.dateOfJoin).format("DD-MMM-YYYY")}
+                </Text>
+              </View>
+            </View>
+          </View>
+          <Divider
+            bold
+            style={{ marginTop: hp2dp(0.5), marginBottom: hp2dp(1) }}
+          />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f3eaff",
+  sectionContainer: {
+    marginTop: 32,
+    paddingHorizontal: 30,
   },
-  header: {
-    backgroundColor: "#DE7773",
-    alignItems: "center",
-    paddingTop: 100,
-    paddingBottom: 20,
-  },
-  mainAvatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 40,
-    paddingTop: 20,
-  },
-  mainName: {
-    marginTop: 10,
+  sectionTitle: {
     fontSize: 24,
-    color: "white",
+    fontWeight: "600",
   },
-  profileItem: {
+  sectionDescription: {
+    marginTop: 8,
+    fontSize: 18,
+    fontWeight: "400",
+  },
+  highlight: {
+    fontWeight: "700",
+  },
+  rowItem: {
+    borderColor: "black",
+    marginTop: 5,
+    borderRadius: 5,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
-    padding: 18,
-    marginVertical: 5,
-    marginHorizontal: 10,
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    elevation: 2,
+    display: "flex",
+    justifyContent: "space-between",
   },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 15,
+  profileDetailsText2: {
+    paddingLeft: 5,
+    marginTop: -2,
+    fontSize: 14,
   },
-  username: {
-    fontSize: 18,
+  profileDetailsText3: {
+    paddingLeft: 5,
+    fontSize: 12,
+  },
+  loginButton: {
+    height: 35,
+    display: "flex",
+    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#1581ed",
+    borderRadius: 5,
+    width: wp2dp(85),
+    height: 45,
   },
 });
 

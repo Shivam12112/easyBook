@@ -1,41 +1,26 @@
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 // import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import {
   Alert,
   BackHandler,
   ImageBackground,
+  Platform,
   SafeAreaView,
+  StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
+import { widthPercentageToDP as wp2dp } from "react-native-responsive-screen";
 import { ScrollView } from "react-native-virtualized-view";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import imageBackground from "../assets/backGround.png";
-import { handleFetchBookByName } from "../redux/slices";
 import BookFlatList from "./BookFlatList";
 import Loader from "./Loader";
+import SearchBook from "./SearchBook";
 
 const HomeScreen = () => {
-  const [search, setSearch] = useState("");
   const { books, loading } = useSelector((state) => state);
-
-  const dispatch = useDispatch();
-  const navigation = useNavigation();
-
-  const handleTextChange = (text) => {
-    setSearch(text);
-  };
-
-  const handleBookSearch = () => {
-    if (search) {
-      dispatch(handleFetchBookByName(search)).then(() => setSearch(""));
-    } else {
-      Alert.alert("Alert!", "Please enter the book name.");
-    }
-  };
 
   useFocusEffect(
     useCallback(() => {
@@ -63,9 +48,6 @@ const HomeScreen = () => {
       return () => backHandler.remove();
     })
   );
-  useEffect(() => {
-    if (!Object.keys(books).length) dispatch(handleFetchBookByName(search));
-  }, []);
 
   return (
     <ImageBackground
@@ -78,56 +60,18 @@ const HomeScreen = () => {
       <SafeAreaView
         style={{
           flex: 1,
-          marginTop: 40,
         }}
       >
         <View
           style={{
+            marginTop: 25,
+            paddingHorizontal: 16,
             display: "flex",
             flexDirection: "row",
-            justifyContent: "space-between",
-            paddingHorizontal: 16,
-            paddingVertical: 25,
-            borderRadius: 5,
+            justifyContent: "center",
           }}
         >
-          <View
-            style={{
-              flex: 3,
-              marginRight: 10,
-            }}
-          >
-            <TextInput
-              onChangeText={handleTextChange}
-              onBlur={() => setSearch("")}
-              style={{
-                height: 40,
-                borderRadius: 5,
-                backgroundColor: `white`,
-                paddingHorizontal: 8,
-              }}
-              value={search}
-              placeholder="search here..."
-            />
-          </View>
-          <View
-            style={{
-              flex: 1,
-            }}
-          >
-            <TouchableOpacity
-              onPress={handleBookSearch}
-              style={{
-                backgroundColor: "#DE7773",
-                height: 40,
-                borderRadius: 5,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ fontWeight: "bold", color: "white" }}>Search</Text>
-            </TouchableOpacity>
-          </View>
+          <SearchBook />
         </View>
         <View
           style={{
@@ -135,7 +79,7 @@ const HomeScreen = () => {
             flexDirection: "row",
             justifyContent: "space-between",
             paddingHorizontal: 16,
-            paddingBottom: 20,
+            paddingVertical: 20,
             borderRadius: 5,
           }}
         >
@@ -149,16 +93,28 @@ const HomeScreen = () => {
             Popular Books
           </Text>
         </View>
-        <ScrollView>
-          <View
-            style={{
-              paddingHorizontal: 16,
-              paddingBottom: 10,
-            }}
-          >
-            <BookFlatList data={books?.items} />
+        {books?.items?.length ? (
+          <ScrollView>
+            <View
+              style={{
+                paddingHorizontal: 16,
+                paddingBottom: 10,
+              }}
+            >
+              <BookFlatList data={books?.items} />
+            </View>
+          </ScrollView>
+        ) : (
+          <View style={styles.textContainer}>
+            <Text
+              style={{
+                color: "white",
+              }}
+            >
+              Nothing to show!
+            </Text>
           </View>
-        </ScrollView>
+        )}
         {loading && <Loader loading={loading} />}
       </SafeAreaView>
     </ImageBackground>
@@ -166,3 +122,23 @@ const HomeScreen = () => {
 };
 
 export default HomeScreen;
+
+const styles = StyleSheet.create({
+  bgimage: {
+    flex: 1,
+    paddingHorizontal: wp2dp("2.5"),
+    paddingBottom: 20,
+  },
+  mainContainer: {
+    display: "flex",
+    flexDirection: "column",
+    flex: 1,
+    paddingTop: Platform?.OS == "ios" ? 5 : null,
+  },
+
+  textContainer: {
+    top: "45%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

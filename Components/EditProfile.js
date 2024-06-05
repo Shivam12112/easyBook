@@ -1,9 +1,11 @@
-import { useNavigation } from "@react-navigation/native";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import RadioGroup from "react-native-radio-buttons-group";
+
+import { Foundation } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import {
-  Image,
+  Alert,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -12,84 +14,225 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Avatar } from "react-native-paper";
 import {
   heightPercentageToDP as hp2dp,
   widthPercentageToDP as wp2dp,
 } from "react-native-responsive-screen";
-import { auth, database } from "../authentication/firebaseConfig";
+import { useDispatch, useSelector } from "react-redux";
+import { app } from "../authentication/firebaseConfig";
 import Loader from "./Loader";
 import TextScreen from "./TextScreen";
 
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import moment from "moment";
+import { showMessage } from "react-native-flash-message";
+import { handleUpdateProfile } from "../redux/slices";
+import DatePicker from "./DatePicker";
+import ImagePickerModal from "./ImagePickerModal";
+
 function EditProfile() {
-  const [userDetails, setUserDetails] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const { loggedInUser } = useSelector((state) => state);
+
+  const [displayName, setDisplayeName] = useState(loggedInUser.displayName);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dob, setDob] = useState(
+    loggedInUser?.dateOfBirth
+      ? loggedInUser?.dateOfBirth
+      : moment().subtract(10, "year").unix()
+  );
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation();
+  const [selectedId, setSelectedId] = useState(loggedInUser.gender);
+
+  const dispatch = useDispatch();
 
   const handleInputText = (label, value) => {
-    if (label == "Name") setUserDetails({ ...userDetails, fullName: value });
-    else if (label == "Password")
-      setUserDetails({ ...userDetails, password: value });
-    else if (label == "Username / Email")
-      setUserDetails({ ...userDetails, email: value });
-    else setUserDetails({ ...userDetails, confirmPassword: value });
+    setDisplayeName(value);
   };
 
-  const handleRegister = async () => {
-    setLoading(true);
-
+  const openImageLibrary = async () => {
+    setShowImagePicker(false);
     try {
-      await createUserWithEmailAndPassword(
-        auth,
-        userDetails.email,
-        userDetails.password
-      )
-        .then(async (res) => {
-          const user = auth.currentUser;
-          const userRef = doc(database, "users", user.uid);
-          setDoc(userRef, {
-            displayName: userDetails.fullName,
-            email: userDetails.email,
-            uid: user.uid,
-          });
-        })
-        .then(() => {
-          setLoading(false);
-          navigation.replace("TabViewScreen");
-        });
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 4],
+        quality: 1,
+      });
+      setProfilePicture(result?.assets[0]?.uri);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const onDateChange = (date) => {
+    setShowDatePicker(Platform.OS == "ios");
+    setDob(moment(date).unix());
+  };
+
+  const openCameraLibrary = async () => {
+    setShowImagePicker(false);
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        saveToPhotos: false,
+        mediaType: "photo",
+        includeBase64: false,
+      });
+      setProfilePicture(result?.assets[0]?.uri);
     } catch (error) {
       console.log(error);
     }
   };
 
+  const uploadImage = async () => {
+    if (profilePicture === null) {
+      setLoading(true);
+      const payload = {
+        uid: loggedInUser.uid,
+        profileUrl: loggedInUser?.profilePicture || null,
+        gender: selectedId,
+        dateOfBirth: dob,
+        displayName: displayName,
+      };
+      dispatch(handleUpdateProfile(payload)).then((rr) => {
+        setLoading(false);
+        showMessage({
+          message: "Success",
+          description: "Profile updated successfully",
+          type: "success",
+          duration: 3000, // 3 seconds
+          floating: true,
+        });
+      });
+      return;
+    }
+    setLoading(true);
+
+    fetch(profilePicture)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Network response was not ok: ${response.statusText}`
+          );
+        }
+        response.blob().then((blob) => {
+          const storage = getStorage(app);
+          const storageRef = ref(
+            storage,
+            `profile_picture/${loggedInUser.uid}`
+          );
+          uploadBytes(storageRef, blob)
+            .then((uploadResult) => {
+              getDownloadURL(storageRef).then((downloadURL) => {
+                const payload = {
+                  uid: loggedInUser.uid,
+                  profileUrl: downloadURL,
+                  gender: selectedId,
+                  dateOfBirth: dob,
+                  displayName: displayName,
+                };
+                dispatch(handleUpdateProfile(payload)).then((rr) => {
+                  setLoading(false);
+                  showMessage({
+                    message: "Success",
+                    description: "Profile updated successfully",
+                    type: "success",
+                    duration: 3000, // 3 seconds
+                    floating: true,
+                  });
+                });
+              });
+            })
+            .catch((err) => {
+              setLoading(false);
+            });
+        });
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.log("error in fethching profile");
+      });
+  };
+
+  const radioButtons = useMemo(
+    () => [
+      {
+        id: "1",
+        label: "Male",
+        value: "Male",
+      },
+      {
+        id: "2",
+        label: "Female",
+        value: "Female",
+      },
+    ],
+    []
+  );
   return (
     <SafeAreaView
       style={{
-        flex: 1,
+        backgroundColor: "#f3eaff",
       }}
     >
       <StatusBar />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           style={{
-            marginTop: hp2dp(10),
+            marginTop: hp2dp(5),
             display: "flex",
             justifyContent: "center",
             alignContent: "center",
             flexDirection: "row",
           }}
         >
-          <Image
-            style={{
-              height: 130,
-              width: 130,
-            }}
-            source={require("../assets/open-book-icon.png")}
+          <Avatar.Image
+            size={140}
+            source={
+              profilePicture
+                ? {
+                    uri: profilePicture,
+                  }
+                : loggedInUser.profilePicture
+                ? {
+                    uri: loggedInUser.profilePicture,
+                  }
+                : require("../assets/avatar.jpg")
+            }
           />
+          <View
+            style={{
+              position: "absolute",
+              bottom: 10,
+              left: 235,
+              padding: 10,
+              backgroundColor: "#dbd3ba",
+              borderRadius: 40,
+              height: 35,
+              width: 35,
+              justifyContent: "center",
+              alignItems: "center",
+              flexDirection: "row",
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                position: "absolute",
+                backgroundColor: "#1581ed",
+                borderRadius: 20,
+                height: 30,
+                width: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "row",
+              }}
+              onPress={() => setShowImagePicker(true)}
+            >
+              <Foundation name="plus" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
         <View
           style={{
@@ -98,45 +241,78 @@ function EditProfile() {
             justifyContent: "center",
             flexDirection: "row",
           }}
-        >
-          <View style={{ width: wp2dp(85) }}>
-            <Text style={{ fontSize: 28, color: "black" }}>Create Account</Text>
-            <Text
-              style={{
-                marginTop: 8,
-                color: "gray",
-              }}
-            >
-              Join us for seamless access to a wide variety of books.
-            </Text>
-          </View>
-        </View>
+        ></View>
         <View style={[styles.sectionContainer, { marginTop: 20 }]}>
           <TextScreen
             label="Name"
             handleInputText={handleInputText}
-            value={userDetails.fullName}
+            value={displayName}
             keyboardType="default"
           />
+          <View
+            style={{
+              width: wp2dp(85),
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <View
+              style={{
+                alignContent: "center",
+                justifyContent: "center",
+                marginTop: 10,
+              }}
+            >
+              <RadioGroup
+                radioButtons={radioButtons}
+                onPress={setSelectedId}
+                selectedId={selectedId}
+                containerStyle={{
+                  display: "flex",
+                  flexDirection: "row",
+                  padding: 0,
+                }}
+              />
+            </View>
+
+            <View
+              style={{
+                alignContent: "center",
+                justifyContent: "center",
+                marginTop: 10,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                style={{
+                  height: 40,
+                  width: wp2dp(39),
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderWidth: 1,
+                  borderColor: "#bdbdbd",
+                  borderRadius: 5,
+                }}
+              >
+                <Text>{moment.unix(dob).format("DD-MM-YYYY")}</Text>
+                {showDatePicker && (
+                  <DatePicker
+                    value={dob}
+                    isVisible={showDatePicker}
+                    onClose={() => setShowDatePicker(false)}
+                    onDateChange={onDateChange}
+                  />
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
           <TextScreen
+            editable={false}
             label="Username / Email"
             handleInputText={handleInputText}
-            value={userDetails.email}
+            value={loggedInUser.email}
             keyboardType="email-address"
-          />
-          <TextScreen
-            label="Password"
-            secureTextEntry={true}
-            keyboardType="password"
-            handleInputText={handleInputText}
-            value={userDetails.password}
-          />
-          <TextScreen
-            label="Confirm Password"
-            secureTextEntry={true}
-            keyboardType="password"
-            handleInputText={handleInputText}
-            value={userDetails.confirmPassword}
           />
         </View>
         <View style={styles.sectionContainer}>
@@ -147,54 +323,19 @@ function EditProfile() {
               flexDirection: "row",
             }}
           >
-            <TouchableOpacity
-              onPress={() => {
-                handleRegister();
-              }}
-              style={styles.loginButton}
-            >
+            <TouchableOpacity onPress={uploadImage} style={styles.loginButton}>
               <Text style={{ fontSize: 18, color: "white", fontWeight: "700" }}>
-                Sign Up
+                Submit
               </Text>
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.sectionContainer}>
-          <View>
-            <View
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                flexDirection: "row",
-                marginBottom: 10,
-              }}
-            >
-              <Text style={{ fontSize: 14, color: "black" }}>
-                Already have an account?{"  "}
-                <Text
-                  style={{ fontSize: 14, color: "#1581ed" }}
-                  onPress={() => navigation.navigate("LoginScreen")}
-                >
-                  Login
-                </Text>
-              </Text>
-            </View>
-            <View
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                flexDirection: "row",
-              }}
-            >
-              <Text
-                style={{ fontSize: 14, color: "#1581ed" }}
-                onPress={() => navigation.navigate("ForgetPasswordScreen")}
-              >
-                Forget Password?
-              </Text>
-            </View>
-          </View>
-        </View>
+        <ImagePickerModal
+          isVisible={showImagePicker}
+          openCameraLibrary={openCameraLibrary}
+          openImageLibrary={openImageLibrary}
+          onClose={() => setShowImagePicker(false)}
+        />
         <Loader loading={loading} />
       </ScrollView>
     </SafeAreaView>

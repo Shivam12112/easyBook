@@ -10,18 +10,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import TextScreen from "./TextScreen";
-import {
-  createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
-} from "firebase/auth";
-import { auth, database } from "../authentication/firebaseConfig";
 import {
   heightPercentageToDP as hp2dp,
   widthPercentageToDP as wp2dp,
 } from "react-native-responsive-screen";
-import { doc, setDoc } from "firebase/firestore";
+import { useDispatch } from "react-redux";
+import {
+  handleFetchBookByName,
+  handleOnboardingScreen,
+  registerWithEmailAndPassword,
+} from "../redux/slices";
 import Loader from "./Loader";
+import TextScreen from "./TextScreen";
 
 function SignupScreen() {
   const [userDetails, setUserDetails] = useState({
@@ -32,6 +32,7 @@ function SignupScreen() {
   });
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const handleInputText = (label, value) => {
     if (label == "Name") setUserDetails({ ...userDetails, fullName: value });
@@ -44,29 +45,20 @@ function SignupScreen() {
 
   const handleRegister = async () => {
     setLoading(true);
-
-    try {
-      await createUserWithEmailAndPassword(
-        auth,
-        userDetails.email,
-        userDetails.password
-      )
-        .then(async (res) => {
-          const user = auth.currentUser;
-          const userRef = doc(database, "users", user.uid);
-          setDoc(userRef, {
-            displayName: userDetails.fullName,
-            email: userDetails.email,
-            uid: user.uid,
-          });
-        })
-        .then(() => {
-          setLoading(false);
-          navigation.replace("TabViewScreen");
-        });
-    } catch (error) {
-      console.log(error);
-    }
+    dispatch(registerWithEmailAndPassword(userDetails))
+      .then(() => {
+        dispatch(handleFetchBookByName(""))
+          .then(async () => {
+            await dispatch(handleOnboardingScreen());
+            setLoading(false);
+            navigation.replace("HomeScreen");
+          })
+          .catch((err) => console.log("error in fetching books", err));
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.log(err);
+      });
   };
 
   return (
@@ -121,6 +113,7 @@ function SignupScreen() {
             value={userDetails.fullName}
             keyboardType="default"
           />
+
           <TextScreen
             label="Username / Email"
             handleInputText={handleInputText}

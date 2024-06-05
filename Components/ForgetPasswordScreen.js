@@ -83,7 +83,7 @@ function ForgetPasswordScreen() {
       }}
     >
       <StatusBar />
-      <FlashMessage position="top" />
+      {/* <FlashMessage position="top" /> */}
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           style={{
