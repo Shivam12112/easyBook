@@ -4,15 +4,13 @@ import RadioGroup from "react-native-radio-buttons-group";
 import { Foundation } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import {
-  Alert,
   Platform,
   SafeAreaView,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { Avatar } from "react-native-paper";
 import {
@@ -177,7 +175,6 @@ function EditProfile() {
         backgroundColor: "#f3eaff",
       }}
     >
-      <StatusBar />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           style={{

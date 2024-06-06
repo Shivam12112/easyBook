@@ -1,10 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   SafeAreaView,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -33,6 +32,13 @@ function SignupScreen() {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const [errors, setErrors] = useState(false);
+  const [validated, setValidated] = useState({
+    fullName: null,
+    email: null,
+    password: null,
+    confirmPass: null,
+  });
 
   const handleInputText = (label, value) => {
     if (label == "Name") setUserDetails({ ...userDetails, fullName: value });
@@ -43,7 +49,47 @@ function SignupScreen() {
     else setUserDetails({ ...userDetails, confirmPassword: value });
   };
 
+  const handleValidation = () => {
+    console.log(userDetails);
+  };
+
+  useEffect(() => {
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,16}$/;
+    (() => {
+      const newValidation = {
+        fullName: userDetails.fullName ? true : false,
+        email: userDetails.email ? true : false,
+        password: regex.test(userDetails.password),
+        confirmPass: userDetails.confirmPassword ? true : false,
+        passwordMatched: userDetails.password === userDetails.confirmPassword,
+      };
+      setValidated(newValidation);
+    })();
+  }, [userDetails]);
+
   const handleRegister = async () => {
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,16}$/;
+    const newValidation = {
+      fullName: userDetails.fullName ? true : false,
+      email: userDetails.email ? true : false,
+      password: regex.test(userDetails.password),
+      confirmPass: userDetails.confirmPassword ? true : false,
+      passwordMatched: userDetails.password === userDetails.confirmPassword,
+    };
+    setValidated(newValidation);
+    setErrors(true);
+    if (
+      !(
+        newValidation.fullName &&
+        newValidation.email &&
+        newValidation.password &&
+        newValidation.passwordMatched
+      )
+    ) {
+      return;
+    }
     setLoading(true);
     dispatch(registerWithEmailAndPassword(userDetails))
       .then(() => {
@@ -67,7 +113,6 @@ function SignupScreen() {
         flex: 1,
       }}
     >
-      <StatusBar />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           style={{
@@ -113,13 +158,22 @@ function SignupScreen() {
             value={userDetails.fullName}
             keyboardType="default"
           />
-
+          {errors && validated.fullName == false && (
+            <Text style={{ color: "red", marginLeft: 8, marginTop: 2 }}>
+              Name is required
+            </Text>
+          )}
           <TextScreen
             label="Username / Email"
             handleInputText={handleInputText}
             value={userDetails.email}
             keyboardType="email-address"
           />
+          {errors && validated.email == false && (
+            <Text style={{ color: "red", marginLeft: 8, marginTop: 2 }}>
+              Email is required
+            </Text>
+          )}
           <TextScreen
             label="Password"
             secureTextEntry={true}
@@ -127,6 +181,11 @@ function SignupScreen() {
             handleInputText={handleInputText}
             value={userDetails.password}
           />
+          {errors && validated.password == false && (
+            <Text style={{ color: "red", marginLeft: 8, marginTop: 2 }}>
+              Enter a valid password
+            </Text>
+          )}
           <TextScreen
             label="Confirm Password"
             secureTextEntry={true}
@@ -134,6 +193,23 @@ function SignupScreen() {
             handleInputText={handleInputText}
             value={userDetails.confirmPassword}
           />
+          {errors &&
+            (validated.confirmPass == false ? (
+              <Text style={{ color: "red", marginLeft: 8, marginTop: 2 }}>
+                Confirm password is required
+              </Text>
+            ) : (
+              validated.passwordMatched == false && (
+                <Text style={{ color: "red", marginLeft: 8, marginTop: 2 }}>
+                  Password does not match
+                </Text>
+              )
+            ))}
+          <Text style={{ color: "black", marginLeft: 8, marginTop: 5 }}>
+            Note - Password should have minimum of 8 characters, At least one
+            uppercase letter, At least one lowercase letter. At least one
+            number, At least one special character(!@#$%^&*(),.?":{}|<></>)
+          </Text>
         </View>
         <View style={styles.sectionContainer}>
           <View
@@ -144,9 +220,7 @@ function SignupScreen() {
             }}
           >
             <TouchableOpacity
-              onPress={() => {
-                handleRegister();
-              }}
+              onPress={handleRegister}
               style={styles.loginButton}
             >
               <Text style={{ fontSize: 18, color: "white", fontWeight: "700" }}>
@@ -180,6 +254,7 @@ function SignupScreen() {
                 display: "flex",
                 justifyContent: "center",
                 flexDirection: "row",
+                paddingBottom: 20,
               }}
             >
               <Text
@@ -199,7 +274,7 @@ function SignupScreen() {
 
 const styles = StyleSheet.create({
   sectionContainer: {
-    marginTop: 32,
+    marginTop: 20,
     paddingHorizontal: 24,
   },
   sectionTitle: {

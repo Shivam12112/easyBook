@@ -1,15 +1,13 @@
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import {
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
-import FlashMessage from "react-native-flash-message";
 import { widthPercentageToDP as wp2dp } from "react-native-responsive-screen";
 import { auth } from "../authentication/firebaseConfig";
 import { persistor } from "../redux/store";
@@ -25,8 +23,6 @@ function LogOut() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar />
-      <FlashMessage position="top" />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           style={{
@@ -88,6 +84,7 @@ const styles = StyleSheet.create({
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,
+    paddingVertical: 16,
   },
   sectionTitle: {
     fontSize: 24,

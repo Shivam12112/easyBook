@@ -1,5 +1,4 @@
 import { useFocusEffect } from "@react-navigation/native";
-// import { StatusBar } from "expo-status-bar";
 import React, { useCallback } from "react";
 import {
   Alert,
@@ -11,7 +10,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { widthPercentageToDP as wp2dp } from "react-native-responsive-screen";
+import { heightPercentageToDP, widthPercentageToDP as wp2dp } from "react-native-responsive-screen";
 import { ScrollView } from "react-native-virtualized-view";
 import { useSelector } from "react-redux";
 import imageBackground from "../assets/backGround.png";
@@ -64,7 +63,7 @@ const HomeScreen = () => {
       >
         <View
           style={{
-            marginTop: 25,
+            marginTop: Platform.OS == "ios" ? 25 : heightPercentageToDP(10),
             paddingHorizontal: 16,
             display: "flex",
             flexDirection: "row",

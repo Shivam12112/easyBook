@@ -1,13 +1,14 @@
+import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { LogBox } from "react-native";
+import FlashMessage from "react-native-flash-message";
 import "react-native-gesture-handler";
+import { PaperProvider } from "react-native-paper";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import Navigation from "./Navigation";
 import { WithSplashScreen } from "./WithSplashScreen";
 import { persistor, store } from "./redux/store";
-import { PaperProvider } from "react-native-paper";
-import FlashMessage from "react-native-flash-message";
 
 const App = () => {
   LogBox.ignoreLogs([
@@ -19,6 +20,7 @@ const App = () => {
       <PersistGate loading={null} persistor={persistor}>
         <WithSplashScreen isAppReady={true}>
           <PaperProvider>
+            <StatusBar style="auto" hidden={false} />
             <Navigation />
           </PaperProvider>
         </WithSplashScreen>

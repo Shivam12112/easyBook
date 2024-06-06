@@ -5,13 +5,12 @@ import {
   Image,
   SafeAreaView,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import FlashMessage, { showMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 import {
   heightPercentageToDP as hp2dp,
   widthPercentageToDP as wp2dp,
@@ -82,12 +81,10 @@ function ForgetPasswordScreen() {
         flex: 1,
       }}
     >
-      <StatusBar />
-      {/* <FlashMessage position="top" /> */}
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
+      <ScrollView contentInsetAdjustmentBehavior="automatic" >
         <View
           style={{
-            marginTop: hp2dp(10),
+            marginTop: hp2dp(15),
             display: "flex",
             justifyContent: "center",
             alignContent: "center",
@@ -163,6 +160,7 @@ function ForgetPasswordScreen() {
                 display: "flex",
                 justifyContent: "center",
                 flexDirection: "row",
+                paddingBottom:20
               }}
             >
               <Text
@@ -182,7 +180,7 @@ function ForgetPasswordScreen() {
 
 const styles = StyleSheet.create({
   sectionContainer: {
-    marginTop: 32,
+    marginTop: 20,
     paddingHorizontal: 24,
   },
   sectionTitle: {

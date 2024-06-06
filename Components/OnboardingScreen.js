@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 import onboardingImage1 from "../assets/onboardingImage1.png";
 import onboardingImage2 from "../assets/onboardingImage2.png";
 import onboardingImage3 from "../assets/onboardingImage3.png";
+import { heightPercentageToDP, widthPercentageToDP } from "react-native-responsive-screen";
 
 const OnboardingScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -107,14 +108,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   slide: {
-    // flex: 0.8,
+    // flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
   skipButton: {
     alignSelf: "flex-end",
-    margin: 20,
+    marginRight: widthPercentageToDP(1),
+    marginVertical: heightPercentageToDP(5)
   },
   skipButtonText: {
     color: "#000",

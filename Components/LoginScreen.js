@@ -4,13 +4,12 @@ import {
   Image,
   SafeAreaView,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import FlashMessage, { showMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 import {
   heightPercentageToDP as hp2dp,
   widthPercentageToDP as wp2dp,
@@ -75,14 +74,14 @@ function LoginScreen() {
     <SafeAreaView
       style={{
         flex: 1,
+        justifyContent: "center",
+        flexDirection: "column",
       }}
     >
-      <StatusBar />
-      <FlashMessage position="top" />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           style={{
-            marginTop: hp2dp(10),
+            marginTop: hp2dp(15),
             display: "flex",
             justifyContent: "center",
             alignContent: "center",
@@ -121,7 +120,7 @@ function LoginScreen() {
           <TextScreen
             label="Email Address"
             secureTextEntry={false}
-            keyboardType="password"
+            keyboardType="email-address"
             handleInputText={handleInputText}
             value={loginDetails.email}
           />
@@ -182,6 +181,7 @@ function LoginScreen() {
                 display: "flex",
                 justifyContent: "center",
                 flexDirection: "row",
+                paddingBottom: 20,
               }}
             >
               <Text
@@ -201,7 +201,7 @@ function LoginScreen() {
 
 const styles = StyleSheet.create({
   sectionContainer: {
-    marginTop: 32,
+    marginTop: 20,
     paddingHorizontal: 24,
   },
   sectionTitle: {

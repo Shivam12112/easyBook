@@ -8,7 +8,6 @@ import moment from "moment";
 import {
   SafeAreaView,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   View
@@ -32,7 +31,6 @@ function Profile() {
         backgroundColor: "#f3eaff",
       }}
     >
-      <StatusBar />
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <View
           style={{
